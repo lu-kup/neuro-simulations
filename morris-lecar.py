@@ -73,7 +73,7 @@ def visualize(solution):
     ax1.set_xlabel('V')
     ax1.set_ylabel('w')
 
-    ax1.plot(solution.y[0, -1], solution.y[1, -1], marker='o', fillstyle='left', markersize=7, color='black')
+    # ax1.plot(solution.y[0, -1], solution.y[1, -1], marker='o', fillstyle='left', markersize=7, color='black')
 
     ax2.plot(solution.t, solution.y[0], marker=',', markersize=0.3, color='black')
     ax2.set_xlabel('t')
