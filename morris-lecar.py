@@ -66,7 +66,9 @@ def tau_w(V):
     # return tau_w_bar / math.cosh((V - theta_w) / (2*sigma_w))
     return 1
 
+#-----------------------------------------------
 # ODEs
+
 def V_dot(V, w, t):
     return (I(t) - g_Ca * m_inf(V) * (V - E_Ca) - g_K * w * (V - E_K) - g_L * (V - E_L)) / C
 
@@ -79,6 +81,29 @@ def f(t, y):
     w = y[1]
 
     return [V_dot(V, w, t), w_dot(V, w)]
+
+#-----------------------------------------------
+# NULLCLINES
+
+def calculate_w_nullcline():
+    Vs = np.linspace(-80, 60, 10**4)
+    ws = [w_inf(V_value) for V_value in Vs]
+
+    return [Vs, ws]
+
+def V_nullcline_formula(V):
+    w = (I_app + g_Ca * m_inf(V) * (E_Ca - V) + g_L * (E_L - V)) / (g_K * (V - E_K))
+
+    return w
+
+def calculate_V_nullcline():
+    Vs = np.linspace(-100, 100, 10**4)
+    ws = [V_nullcline_formula(V_value) for V_value in Vs]
+
+    return [Vs, ws]
+
+#-----------------------------------------------
+# MAIN CODE
 
 def visualize(solution):
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
@@ -124,23 +149,6 @@ def visualize(solution):
 
     #plt.show()
     return fig, (ax1, ax2)
-
-def calculate_w_nullcline():
-    Vs = np.linspace(-80, 60, 10**4)
-    ws = [w_inf(V_value) for V_value in Vs]
-
-    return [Vs, ws]
-
-def V_nullcline_formula(V):
-    w = (I_app + g_Ca * m_inf(V) * (E_Ca - V) + g_L * (E_L - V)) / (g_K * (V - E_K))
-
-    return w
-
-def calculate_V_nullcline():
-    Vs = np.linspace(-100, 100, 10**4)
-    ws = [V_nullcline_formula(V_value) for V_value in Vs]
-
-    return [Vs, ws]
 
 if __name__ == '__main__':
     ts = np.linspace(0, T, 10**5)
