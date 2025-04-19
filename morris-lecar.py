@@ -2,23 +2,40 @@ import numpy as np
 from scipy.integrate import solve_ivp
 import matplotlib.pyplot as plt
 import math
+import sys
 
-# Bifurcation parameter
-I = 40
+#-----------------------------------------------
+# MODEL INPUTS
 
-# Parameters
+I_app = 40
+I_spike = 40
+spike_intervals = [[0, 1]]
+
+V_0 = 0
+w_0 = 0.3
+T = 50
+
+#-----------------------------------------------
+# MODEL PARAMETERS
+
+model = sys.argv[1]
+if model != "LT" and model != "HT":
+    raise ValueError("Invalid model selection")
+
 theta_m = -20
-V_half_m = 15
-sigma_m = V_half_m * 2
+k_m = 15
+sigma_m = k_m * 2
 
-theta_w = -45
-V_half_w = 5
-sigma_w = V_half_w * 2
+theta_w = -45 if model == "LT" else -25
+k_w = 5
+sigma_w = k_w * 2
 
 tau_m_bar = 10 # Unused
 tau_w_bar = 25 # Unused
 
-# Physical constants
+#-----------------------------------------------
+# PHYSICAL CONSTANTS
+
 C = 1
 
 g_Ca = 20
@@ -27,7 +44,13 @@ g_L = 8
 
 E_Ca = 60
 E_K = -90
-E_L = -78
+E_L = -78 if model == "LT" else -80
+
+def I(t):
+    for interval_bounds in spike_intervals:
+        if t >= interval_bounds[0] and t < interval_bounds[1]:  
+            return I_spike
+    return I_app
 
 def m_inf(V):
     return 1/2 * (1 + math.tanh((V - theta_m) / sigma_m))
@@ -44,36 +67,37 @@ def tau_w(V):
     return 1
 
 # ODEs
-def V_dot(V, w):
-    return (I - g_Ca * m_inf(V) * (V - E_Ca) - g_K * w * (V - E_K) - g_L * (V - E_L)) / C
+def V_dot(V, w, t):
+    return (I(t) - g_Ca * m_inf(V) * (V - E_Ca) - g_K * w * (V - E_K) - g_L * (V - E_L)) / C
 
 def w_dot(V, w):
     return -(w - w_inf(V)) / tau_w(V)
-
-ts = np.linspace(0, 50, 10**5)
 
 # y = (V, w)
 def f(t, y):
     V = y[0]
     w = y[1]
 
-    return [V_dot(V, w), w_dot(V, w)]
-
-solution = solve_ivp(f, [0, 50], [-30, 0.1], t_eval=ts)
-
-print(solution.t)
-print(solution.y[0])
-print(solution.t.size)
-
+    return [V_dot(V, w, t), w_dot(V, w)]
 
 def visualize(solution):
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
+
+    w_nullcline = calculate_w_nullcline()
+    ax1.plot(w_nullcline[0], w_nullcline[1], marker=',', markersize=0.02, color='grey')
+
+    V_nullcline = calculate_V_nullcline()
+    ax1.plot(V_nullcline[0], V_nullcline[1], marker=',', markersize=0.02, color='grey')
 
     ax1.plot(solution.y[0], solution.y[1], marker=',', markersize=0.1, color='black')
     ax1.set_xlabel('V')
     ax1.set_ylabel('w')
 
+    ax1.set_ylim(0, 1)
+    ax1.set_xlim(-80, 40)
+
     # ax1.plot(solution.y[0, -1], solution.y[1, -1], marker='o', fillstyle='left', markersize=7, color='black')
+    # vect_I = np.vectorize(I)
 
     ax2.plot(solution.t, solution.y[0], marker=',', markersize=0.3, color='black')
     ax2.set_xlabel('t')
@@ -89,7 +113,7 @@ def visualize(solution):
 
     for i in range(V_grid.shape[0]):
         for j in range(V_grid.shape[1]):
-            dV_grid[i, j] = V_dot(V_grid[i, j], W_grid[i, j])
+            dV_grid[i, j] = V_dot(V_grid[i, j], W_grid[i, j], ts[0])
             dW_grid[i, j] = w_dot(V_grid[i, j], W_grid[i, j])
 
     norm = np.sqrt(dV_grid**2 + dW_grid**2)
@@ -98,37 +122,30 @@ def visualize(solution):
 
     q = ax1.quiver(X, Y, dV_norm, dW_norm, color='purple')
 
+    #plt.show()
+    return fig, (ax1, ax2)
+
+def calculate_w_nullcline():
+    Vs = np.linspace(-80, 60, 10**4)
+    ws = [w_inf(V_value) for V_value in Vs]
+
+    return [Vs, ws]
+
+def V_nullcline_formula(V):
+    w = (I_app + g_Ca * m_inf(V) * (E_Ca - V) + g_L * (E_L - V)) / (g_K * (V - E_K))
+
+    return w
+
+def calculate_V_nullcline():
+    Vs = np.linspace(-100, 100, 10**4)
+    ws = [V_nullcline_formula(V_value) for V_value in Vs]
+
+    return [Vs, ws]
+
+if __name__ == '__main__':
+    ts = np.linspace(0, T, 10**5)
+
+    solution = solve_ivp(f, [0, T], [V_0, w_0], t_eval=ts)
+    fig, (ax1, ax2) = visualize(solution)
+
     plt.show()
-
-visualize(solution)
-
-""" 
-# Grid for vector field
-V_vals = np.linspace(-80, 60, 30)
-w_vals = np.linspace(0, 1, 30)
-
-
-# Compute derivatives
-dV = []
-for V in V_vals:
-    dV.append(V_dot()) 
-
-
-dW = []
-for w in w_vals:
-    dW.append(w_dot(w)) 
-
-# Normalize arrows for better visualization
-magnitude = np.sqrt(dV**2 + dW**2)
-dV_norm = dV / magnitude
-dW_norm = dW / magnitude
-
-# Plotting vector field
-plt.figure(figsize=(8, 6))
-plt.quiver(V_vals, w_vals, dV_norm, dW_norm, angles='xy', scale=25, width=0.002)
-plt.xlabel('Membrane Potential V (mV)')
-plt.ylabel('Gating Variable w')
-plt.title('Morris–Lecar Phase Space Vector Field')
-plt.grid(True)
-plt.tight_layout()
-plt.show() """
