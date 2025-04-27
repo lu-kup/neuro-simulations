@@ -7,8 +7,8 @@ import sys
 #-----------------------------------------------
 # MODEL INPUTS
 
-I_app = 46.3071307
-I_spike = 46.3071307
+I_app = 20
+I_spike = I_app
 spike_intervals = [[0, 1]]
 
 V_0 = 0
@@ -54,10 +54,10 @@ def I(t):
     return I_app
 
 def m_inf(V):
-    return 1/2 * (1 + math.tanh((V - theta_m) / sigma_m))
+    return 1/2 * (1 + np.tanh((V - theta_m) / sigma_m))
 
 def w_inf(V):
-    return 1/2 * (1 + math.tanh((V - theta_w) / sigma_w))
+    return 1/2 * (1 + np.tanh((V - theta_w) / sigma_w))
 
 def tau_m(V):
     # return tau_m_bar / math.cosh((V - theta_m) / (2*sigma_m))
@@ -82,6 +82,9 @@ def f(t, y):
     w = y[1]
 
     return [V_dot(V, w, t), w_dot(V, w)]
+
+def f0(y):
+    return f(0, y)
 
 #-----------------------------------------------
 # NULLCLINES
@@ -130,9 +133,8 @@ def visualize(solution, ts):
     ax2.set_ylabel('V')
     ax2.grid()
 
-
     X = np.arange(-80, 60, 5)
-    Y = np.arange(0, 1, 0.05)
+    Y = np.arange(-0.2, 1, 0.05)
 
     V_grid, W_grid = np.meshgrid(X, Y)
     dV_grid, dW_grid = np.meshgrid(X, Y)
@@ -158,3 +160,20 @@ if __name__ == '__main__':
     fig, (ax1, ax2) = visualize(solution, ts)
 
     plt.show()
+
+
+""" 
+Saddle-node bifurcation Izhikevich model:
+
+I, V:  [  4.51286763 -60.93251761]
+w:  0.0007561581829480524
+Jacobian:
+[[ 4.39259892e-02 -2.90674824e+02]
+ [ 1.51117282e-04 -1.00000000e+00]]
+[[   0.04392599 -290.67482386]
+ [   0.00015112   -1.        ]]
+Eigenvalues and eigenvectors:
+[ 0.         -0.95607401]
+[[0.99999999 0.99999408]
+ [0.00015112 0.00344025]]
+ """

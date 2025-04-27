@@ -1,7 +1,8 @@
 import numpy as np
 import math
-from morris_lecar import *
+from neuron_model import *
 from scipy.optimize import fsolve
+from scipy.differentiate import jacobian 
 
 def saddle_node(x):
     I_x = x[0]
@@ -19,4 +20,22 @@ def saddle_node(x):
 
 if __name__ == '__main__':
     solution = fsolve(saddle_node, [47, -56])
-    print(solution)
+    print("\nRESULT:")
+    print("I, V: ", solution)
+    w_solution = w_inf(solution[1])
+    print("w: ", w_solution)
+
+    print("Jacobian:")
+    jac = jacobian(f0, [solution[1], w_solution])
+    print(jac.df)
+    eval, evec = np.linalg.eig(jac.df)
+    print("Eigenvalues and eigenvectors:")
+    print(eval)
+    print(evec)
+
+    np.set_printoptions(suppress=True)
+    print("Jacobian:")
+    print(jac.df)
+    print("Eigenvalues and eigenvectors:")
+    print(eval)
+    print(evec)
