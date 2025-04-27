@@ -7,8 +7,8 @@ import sys
 #-----------------------------------------------
 # MODEL INPUTS
 
-I_app = 40
-I_spike = 40
+I_app = 4.51286763
+I_spike = 4.51286763
 spike_intervals = [[0, 1]]
 
 V_0 = 0
@@ -105,7 +105,7 @@ def calculate_V_nullcline():
 #-----------------------------------------------
 # MAIN CODE
 
-def visualize(solution):
+def visualize(solution, ts):
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
 
     w_nullcline = calculate_w_nullcline()
@@ -118,7 +118,7 @@ def visualize(solution):
     ax1.set_xlabel('V')
     ax1.set_ylabel('w')
 
-    ax1.set_ylim(0, 1)
+    ax1.set_ylim(-0.2, 1)
     ax1.set_xlim(-80, 40)
 
     # ax1.plot(solution.y[0, -1], solution.y[1, -1], marker='o', fillstyle='left', markersize=7, color='black')
@@ -154,6 +154,6 @@ if __name__ == '__main__':
     ts = np.linspace(0, T, 10**5)
 
     solution = solve_ivp(f, [0, T], [V_0, w_0], t_eval=ts)
-    fig, (ax1, ax2) = visualize(solution)
+    fig, (ax1, ax2) = visualize(solution, ts)
 
     plt.show()
