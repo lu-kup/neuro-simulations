@@ -7,8 +7,8 @@ import sys
 #-----------------------------------------------
 # MODEL INPUTS
 
-I_app = 4.51286763
-I_spike = 4.51286763
+I_app = 46.3071307
+I_spike = 46.3071307
 spike_intervals = [[0, 1]]
 
 V_0 = 0
@@ -19,6 +19,7 @@ T = 50
 # MODEL PARAMETERS
 
 model = sys.argv[1]
+neuron = sys.argv[2]
 if model != "LT" and model != "HT":
     raise ValueError("Invalid model selection")
 
@@ -38,11 +39,11 @@ tau_w_bar = 25 # Unused
 
 C = 1
 
-g_Ca = 20
+g_Ca = 20 if neuron == "IZH" else 10
 g_K = 10
 g_L = 8
 
-E_Ca = 60
+E_Ca = 60 if neuron == "IZH" else 120
 E_K = -90
 E_L = -78 if model == "LT" else -80
 
