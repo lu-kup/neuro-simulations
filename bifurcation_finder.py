@@ -18,15 +18,20 @@ def saddle_node(x):
 
     return [eq1, eq2]
 
-if __name__ == '__main__':
-    solution = fsolve(saddle_node, [47, -56])
-    print("\nRESULT:")
-    print("I, V: ", solution)
-    w_solution = w_inf(solution[1])
-    print("w: ", w_solution)
+def andronov_hopf(x):
+    I_x = x[0]
+    V_x = x[1]
+    print(f"Current params: I={I_x} V={V_x}, cosh arg is ", (V_x - theta_m)/sigma_m)
 
+    eq1 = (I_x + g_Ca * m_inf(V_x) * (E_Ca - V_x) + g_L * (E_L - V_x)) / (g_K * (V_x - E_K)) - w_inf(V_x)
+    jac = jacobian(f0, [V_x, w_inf(V_x)])
+    eq2 = np.trace(jac.df)
+
+    return [eq1, eq2]
+
+def get_jacobian_eigen(V_solution, w_solution):
     print("Jacobian:")
-    jac = jacobian(f0, [solution[1], w_solution])
+    jac = jacobian(f0, [V_solution, w_solution])
     print(jac.df)
     eval, evec = np.linalg.eig(jac.df)
     print("Eigenvalues and eigenvectors:")
@@ -39,3 +44,18 @@ if __name__ == '__main__':
     print("Eigenvalues and eigenvectors:")
     print(eval)
     print(evec)
+
+    print("Trace:")
+    print(np.trace(jac.df))
+
+def solve_bifurcation(f):
+    solution = fsolve(f, [47, -56])
+    print("\nRESULT:")
+    print("I, V: ", solution)
+    w_solution = w_inf(solution[1])
+    print("w: ", w_solution)
+    get_jacobian_eigen(solution[1], w_solution)
+
+if __name__ == '__main__':
+    # get_jacobian_eigen(-56.5, 0.09)
+    solve_bifurcation(andronov_hopf)

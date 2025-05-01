@@ -7,7 +7,7 @@ import sys
 #-----------------------------------------------
 # MODEL INPUTS
 
-I_app = 20
+I_app = 14.65904006 #4.51 #
 I_spike = I_app
 spike_intervals = [[0, 1]]
 
@@ -84,7 +84,7 @@ def f(t, y):
     return [V_dot(V, w, t), w_dot(V, w)]
 
 def f0(y):
-    return f(0, y)
+    return f(1, y)
 
 #-----------------------------------------------
 # NULLCLINES
