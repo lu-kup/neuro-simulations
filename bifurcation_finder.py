@@ -29,6 +29,12 @@ def andronov_hopf(x):
 
     return [eq1, eq2]
 
+def steady_state(V_x, I_x):
+    return I_x + g_Ca * m_inf(V_x) * (E_Ca - V_x) + g_L * (E_L - V_x) + g_K * (E_K - V_x) * w_inf(V_x)
+
+def steady_state_V(I_x):
+    return fsolve(steady_state, x0=10, args=I_x)[0]
+
 def get_jacobian_eigen(V_solution, w_solution):
     print("Jacobian:")
     jac = jacobian(f0, [V_solution, w_solution])
@@ -67,11 +73,55 @@ def current_second_k(V):
     th = np.tanh((V - theta_w)/sigma_w)
     return g_K * sh**2 / sigma_w * (1 - (V - E_K) * th / sigma_w)
 
+def current_prime_ca(V):
+    sh = 1 / np.cosh((V - theta_m)/sigma_m)
+    return g_Ca * (V - E_Ca) * sh**2 / (2 * sigma_m) + g_Ca * m_inf(V)
+
+def current_prime_k(V):
+    sh = 1 / np.cosh((V - theta_w)/sigma_w)
+    return g_K * (V - E_K) * sh**2 / (2 * sigma_w) + g_K * w_inf(V)
+
+def det_L(V):
+    return (current_prime_ca(V) + current_prime_k(V) + g_L) / tau_w(V)
+
+def tr_L(V, w):
+    return -1 * (current_prime_ca(V) + g_K * w + g_L + 1/tau_w(V))
+
+def c(V, w):
+    return tr_L(V, w) / 2
+
+def omega(V, w):
+    return np.sqrt(det_L(V) - c(V, w)**2)
+
+def c_appr(I):
+    V = steady_state_V(I)
+    w = w_inf(V)
+    return c(V, w)
+
+def omega_appr(I):
+    V = steady_state_V(I)
+    w = w_inf(V)
+    return omega(V, w)
+
 def current_inf_second(V):
-    return (- current_second_ca(V) - current_second_k(V)) / C
+    return (current_second_ca(V) + current_second_k(V)) / C
+
+def total_current_inf_second(V):
+    return -1 * current_inf_second(V)
+
+def numerical_derivative(f, x, h=1e-5):
+    return (f(x + h) - f(x - h)) / (2 * h)
 
 if __name__ == '__main__':
     # get_jacobian_eigen(-56.5, 0.09)
-    solution = solve_bifurcation(saddle_node)
-    ats = current_inf_second(solution[0])
-    print(ats / 2)
+    solution = solve_bifurcation(andronov_hopf)
+    print(solution)
+    ats_c = c(solution[0], solution[1])
+    print("c =", ats_c)
+    ats_omega = omega(solution[0], solution[1])
+    print("omega =", ats_omega)
+
+    solved_V = steady_state_V(14.65904006)
+    print(solved_V)
+
+    print(numerical_derivative(omega_appr, 14.65904006))
