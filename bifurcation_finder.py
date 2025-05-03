@@ -55,7 +55,23 @@ def solve_bifurcation(f):
     w_solution = w_inf(solution[1])
     print("w: ", w_solution)
     get_jacobian_eigen(solution[1], w_solution)
+    return [solution[1], w_solution]
+
+def current_second_ca(V):
+    sh = 1 / np.cosh((V - theta_m)/sigma_m)
+    th = np.tanh((V - theta_m)/sigma_m)
+    return g_Ca * sh**2 / sigma_m * (1 - (V - E_Ca) * th / sigma_m)
+
+def current_second_k(V):
+    sh = 1 / np.cosh((V - theta_w)/sigma_w)
+    th = np.tanh((V - theta_w)/sigma_w)
+    return g_K * sh**2 / sigma_w * (1 - (V - E_K) * th / sigma_w)
+
+def current_inf_second(V):
+    return (- current_second_ca(V) - current_second_k(V)) / C
 
 if __name__ == '__main__':
     # get_jacobian_eigen(-56.5, 0.09)
-    solve_bifurcation(andronov_hopf)
+    solution = solve_bifurcation(saddle_node)
+    ats = current_inf_second(solution[0])
+    print(ats / 2)
