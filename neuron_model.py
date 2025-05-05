@@ -7,12 +7,12 @@ import sys
 #-----------------------------------------------
 # MODEL INPUTS
 
-I_app = -19 # -18.52735488
+I_app = 36.3071307
 I_spike = I_app
 spike_intervals = [[0, 1]]
 
-V_0 = 0
-w_0 = 0.3
+V_0 = -55
+w_0 = 0
 T = 50
 
 #-----------------------------------------------
@@ -120,10 +120,10 @@ def visualize(solution, ts):
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
 
     w_nullcline = calculate_w_nullcline()
-    ax1.plot(w_nullcline[0], w_nullcline[1], marker=',', markersize=0.02, color='grey')
+    ax1.plot(w_nullcline[0], w_nullcline[1], marker=',', markersize=0.02, color='lightgrey')
 
     V_nullcline = calculate_V_nullcline()
-    ax1.plot(V_nullcline[0], V_nullcline[1], marker=',', markersize=0.02, color='grey')
+    ax1.plot(V_nullcline[0], V_nullcline[1], marker=',', markersize=0.02, color='lightgrey')
 
     ax1.plot(solution.y[0], solution.y[1], marker=',', markersize=0.1, color='black')
     ax1.set_xlabel('V')
@@ -160,11 +160,51 @@ def visualize(solution, ts):
     #plt.show()
     return fig, (ax1, ax2)
 
+def arrow_annotate(solution, ax1, ts, interval, color='black'):
+    x = solution.y[0]
+    y = solution.y[1]
+
+    length = len(ts)
+    indices = []
+    current_index = 0
+    while current_index < length - interval - 1:
+        current_index += interval
+        indices.append(current_index)
+
+    print(indices)
+
+    for idx in indices:
+        ax1.annotate(
+            '', 
+            xy=(x[idx+1], y[idx+1]), 
+            xytext=(x[idx], y[idx]),
+            arrowprops=dict(
+                arrowstyle='->',  # or 'fancy', 'simple', etc.
+                color=color,
+                lw=1.5
+            )
+        )
+
+
 if __name__ == '__main__':
     ts = np.linspace(0, T, 10**5)
 
     solution = solve_ivp(f, [0, T], [V_0, w_0], t_eval=ts)
     fig, (ax1, ax2) = visualize(solution, ts)
+
+    solution = solve_ivp(f, [0, T], [-40, 0], t_eval=ts)
+    ax1.plot(solution.y[0], solution.y[1], marker=',', markersize=0.1, color='grey')
+    arrow_annotate(solution, ax1, ts, 100, color='grey')
+
+
+    solution = solve_ivp(f, [0, T], [-50, 0.8], t_eval=ts)
+    ax1.plot(solution.y[0], solution.y[1], marker=',', markersize=0.1, color='grey')
+
+    solution = solve_ivp(f, [0, T], [-20, 0.2], t_eval=ts)
+    ax1.plot(solution.y[0], solution.y[1], marker=',', markersize=0.1, color='grey')
+
+    solution = solve_ivp(f, [0, T], [20, 0.7], t_eval=ts)
+    ax1.plot(solution.y[0], solution.y[1], marker=',', markersize=0.1, color='grey')
 
     plt.show()
 
