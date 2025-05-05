@@ -33,7 +33,7 @@ def steady_state(V_x, I_x):
     return I_x + g_Ca * m_inf(V_x) * (E_Ca - V_x) + g_L * (E_L - V_x) + g_K * (E_K - V_x) * w_inf(V_x)
 
 def steady_state_V(I_x):
-    return fsolve(steady_state, x0=10, args=I_x)[0]
+    return fsolve(steady_state, x0=-50, args=I_x)[0]
 
 def get_jacobian_eigen(V_solution, w_solution):
     print("Jacobian:")

@@ -7,7 +7,7 @@ import sys
 #-----------------------------------------------
 # MODEL INPUTS
 
-I_app = 14.65904006 #4.51 #
+I_app = -19 # -18.52735488
 I_spike = I_app
 spike_intervals = [[0, 1]]
 
@@ -39,7 +39,14 @@ tau_w_bar = 25 # Unused
 
 C = 1
 
-g_Ca = 20 if neuron == "IZH" else 10
+if neuron == "IZH":
+    g_Ca = 20 
+else:
+    if model == 'LT':
+        g_Ca = 15
+    elif model == 'HT':
+        g_Ca = 10
+
 g_K = 10
 g_L = 8
 
