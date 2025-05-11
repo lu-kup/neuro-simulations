@@ -43,6 +43,8 @@ def get_jacobian_eigen(V_solution, w_solution):
     print("Eigenvalues and eigenvectors:")
     print(eval)
     print(evec)
+    print("Determinant:")
+    print(np.linalg.det(jac.df))
 
     np.set_printoptions(suppress=True)
     print("Jacobian:")
@@ -114,11 +116,8 @@ def numerical_derivative(f, x, h=1e-5):
 
 if __name__ == '__main__':
     # get_jacobian_eigen(-56.5, 0.09)
-    solution = solve_bifurcation(saddle_node)
-    print(solution)
 
-
-"""     solution = solve_bifurcation(andronov_hopf)
+    solution = solve_bifurcation(andronov_hopf)
     print(solution)
     ats_c = c(solution[0], solution[1])
     print("c =", ats_c)
@@ -128,4 +127,5 @@ if __name__ == '__main__':
     solved_V = steady_state_V(14.65904006)
     print(solved_V)
 
-    print(numerical_derivative(omega_appr, 14.65904006)) """
+    print(numerical_derivative(omega_appr, 14.65904006))
+    print(numerical_derivative(c_appr, 14.65904006))

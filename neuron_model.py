@@ -7,7 +7,7 @@ import sys
 #-----------------------------------------------
 # MODEL INPUTS
 
-I_app = 36.3071307
+I_app = 0
 I_spike = I_app
 spike_intervals = [[0, 1]]
 
@@ -185,6 +185,21 @@ def arrow_annotate(solution, ax1, ts, interval, color='black'):
             )
         )
 
+def visualize_nullclines():
+    fig, ax1 = plt.subplots(1, 1, figsize=(6, 5))
+
+    w_nullcline = calculate_w_nullcline()
+    ax1.plot(w_nullcline[0], w_nullcline[1], marker=',', markersize=0.02, color='lightgrey')
+
+    V_nullcline = calculate_V_nullcline()
+    ax1.plot(V_nullcline[0], V_nullcline[1], marker=',', markersize=0.02, color='lightgrey')
+
+    ax1.set_xlabel('V')
+    ax1.set_ylabel('w')
+    ax1.set_title(f"I_app = {I_app}")
+
+    ax1.set_ylim(-0.2, 1)
+    ax1.set_xlim(-80, 40)
 
 if __name__ == '__main__':
     ts = np.linspace(0, T, 10**5)
@@ -206,6 +221,7 @@ if __name__ == '__main__':
     solution = solve_ivp(f, [0, T], [20, 0.7], t_eval=ts)
     ax1.plot(solution.y[0], solution.y[1], marker=',', markersize=0.1, color='grey')
 
+    # visualize_nullclines()
     plt.show()
 
 
