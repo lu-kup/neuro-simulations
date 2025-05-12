@@ -63,7 +63,7 @@ def solve_bifurcation(f):
     w_solution = w_inf(solution[1])
     print("w: ", w_solution)
     get_jacobian_eigen(solution[1], w_solution)
-    return [solution[1], w_solution]
+    return [solution[1], w_solution, solution[0]]
 
 def current_second_ca(V):
     sh = 1 / np.cosh((V - theta_m)/sigma_m)
@@ -124,8 +124,8 @@ if __name__ == '__main__':
     ats_omega = omega(solution[0], solution[1])
     print("omega =", ats_omega)
 
-    solved_V = steady_state_V(14.65904006)
+    solved_V = steady_state_V(solution[2])
     print(solved_V)
 
-    print(numerical_derivative(omega_appr, 14.65904006))
-    print(numerical_derivative(c_appr, 14.65904006))
+    print(numerical_derivative(omega_appr, solution[2]))
+    print(numerical_derivative(c_appr, solution[2]))

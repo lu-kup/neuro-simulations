@@ -3,6 +3,7 @@ from scipy.integrate import solve_ivp
 import matplotlib.pyplot as plt
 import math
 import sys
+import config
 
 #-----------------------------------------------
 # MODEL INPUTS
@@ -18,10 +19,14 @@ T = 50
 #-----------------------------------------------
 # MODEL PARAMETERS
 
-model = sys.argv[1]
-neuron = sys.argv[2]
-if model != "LT" and model != "HT":
-    raise ValueError("Invalid model selection")
+if config.enabled:
+    model = config.model
+    neuron = config.neuron
+else:
+    model = sys.argv[1]
+    neuron = sys.argv[2]
+    if model != "LT" and model != "HT":
+        raise ValueError("Invalid model selection")
 
 theta_m = -20
 k_m = 15

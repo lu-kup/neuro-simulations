@@ -37,8 +37,6 @@ a = F_third / 16 - (F_second * g_xx) / (16 * omega)
 
 # Model parameters
 subs_dict = {
-    V: -56.48148543,
-    omega: 2.13747717307879,
     theta_m: -20,
     sigma_m: 30,  # 2 * k_m
     sigma_w: 10,  # 2 * k_w
@@ -52,7 +50,10 @@ subs_dict[theta_w] = -45 if model == "LT" else -25
 subs_dict[E_L] = -78 if model == "LT" else -80
 
 subs_dict[E_Ca] = 60 if neuron == "IZH" else 120
-subs_dict[g_Ca] = 20 if neuron == "IZH" else 10
+subs_dict[g_Ca] = 20 if neuron == "IZH" else 15
+
+subs_dict[V] = -56.48148543 if neuron == "IZH" else -61.15803348 
+subs_dict[omega] = 2.13747717 if neuron == "IZH" else 1.05278026 
 
 # Evaluate
 a_evaluated = a.subs(subs_dict).evalf()
