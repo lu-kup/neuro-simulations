@@ -121,7 +121,7 @@ def calculate_V_nullcline():
 #-----------------------------------------------
 # MAIN CODE
 
-def visualize(solution, ts):
+def visualize(solution, ts, color='black'):
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
 
     w_nullcline = calculate_w_nullcline()
@@ -130,7 +130,7 @@ def visualize(solution, ts):
     V_nullcline = calculate_V_nullcline()
     ax1.plot(V_nullcline[0], V_nullcline[1], marker=',', markersize=0.02, color='lightgrey')
 
-    ax1.plot(solution.y[0], solution.y[1], marker=',', markersize=0.1, color='black')
+    ax1.plot(solution.y[0], solution.y[1], marker=',', markersize=0.1, color=color)
     ax1.set_xlabel('V')
     ax1.set_ylabel('w')
 
@@ -186,7 +186,7 @@ def arrow_annotate(solution, ax1, ts, interval, color='black'):
             arrowprops=dict(
                 arrowstyle='->',  # or 'fancy', 'simple', etc.
                 color=color,
-                lw=1.5
+                lw=1
             )
         )
 
@@ -206,28 +206,33 @@ def visualize_nullclines():
     ax1.set_ylim(-0.2, 1)
     ax1.set_xlim(-80, 40)
 
+def visualise_phase_lines(ts, color, y0_vector, interval=100, annotation=True):
+    # First trajectory (e.g., special handling or initial condition)
+    solution = solve_ivp(f, [0, T], y0_vector[0], t_eval=ts)
+    fig, (ax1, ax2) = visualize(solution, ts, color=(0,0,0.4))
+
+    if annotation:
+        arrow_annotate(solution, ax1, ts, interval, color=color)
+
+    # Remaining trajectories
+    for y0 in y0_vector[1:]:
+        solution = solve_ivp(f, [0, T], y0, t_eval=ts)
+        ax1.plot(
+            solution.y[0],
+            solution.y[1],
+            marker='',              # no marker
+            color=color,
+            linewidth=1
+        )
+        if annotation:
+            arrow_annotate(solution, ax1, ts, 100, color=color)
+
+    #plt.show()
+    return ax1, ax2
+
 if __name__ == '__main__':
     ts = np.linspace(0, T, 10**5)
-
-    solution = solve_ivp(f, [0, T], [V_0, w_0], t_eval=ts)
-    fig, (ax1, ax2) = visualize(solution, ts)
-
-    solution = solve_ivp(f, [0, T], [-40, 0], t_eval=ts)
-    ax1.plot(solution.y[0], solution.y[1], marker=',', markersize=0.1, color='grey')
-    arrow_annotate(solution, ax1, ts, 100, color='grey')
-
-
-    solution = solve_ivp(f, [0, T], [-50, 0.8], t_eval=ts)
-    ax1.plot(solution.y[0], solution.y[1], marker=',', markersize=0.1, color='grey')
-
-    solution = solve_ivp(f, [0, T], [-20, 0.2], t_eval=ts)
-    ax1.plot(solution.y[0], solution.y[1], marker=',', markersize=0.1, color='grey')
-
-    solution = solve_ivp(f, [0, T], [20, 0.7], t_eval=ts)
-    ax1.plot(solution.y[0], solution.y[1], marker=',', markersize=0.1, color='grey')
-
-    # visualize_nullclines()
-    plt.show()
+    visualise_phase_lines(ts, 'black', [[-50, 0],[-45, 0],[-30,0],[-20,0]])
 
 
 """ 

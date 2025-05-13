@@ -32,8 +32,8 @@ def andronov_hopf(x):
 def steady_state(V_x, I_x):
     return I_x + g_Ca * m_inf(V_x) * (E_Ca - V_x) + g_L * (E_L - V_x) + g_K * (E_K - V_x) * w_inf(V_x)
 
-def steady_state_V(I_x):
-    return fsolve(steady_state, x0=-50, args=I_x)[0]
+def steady_state_V(I_x, x0=-50):
+    return fsolve(steady_state, x0=x0, args=I_x)[0]
 
 def get_jacobian_eigen(V_solution, w_solution):
     print("Jacobian:")
@@ -117,9 +117,9 @@ def numerical_derivative(f, x, h=1e-5):
 if __name__ == '__main__':
     # get_jacobian_eigen(-56.5, 0.09)
 
-    solution = solve_bifurcation(andronov_hopf)
+    solution = solve_bifurcation(saddle_node)
     print(solution)
-    ats_c = c(solution[0], solution[1])
+"""     ats_c = c(solution[0], solution[1])
     print("c =", ats_c)
     ats_omega = omega(solution[0], solution[1])
     print("omega =", ats_omega)
@@ -128,4 +128,4 @@ if __name__ == '__main__':
     print(solved_V)
 
     print(numerical_derivative(omega_appr, solution[2]))
-    print(numerical_derivative(c_appr, solution[2]))
+    print(numerical_derivative(c_appr, solution[2])) """
