@@ -121,7 +121,7 @@ def calculate_V_nullcline():
 #-----------------------------------------------
 # MAIN CODE
 
-def visualize(solution, ts, color='black'):
+def visualize(solution, ts, color='black', left_limit=-80):
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
 
     w_nullcline = calculate_w_nullcline()
@@ -135,7 +135,7 @@ def visualize(solution, ts, color='black'):
     ax1.set_ylabel('w')
 
     ax1.set_ylim(-0.2, 1)
-    ax1.set_xlim(-80, 40)
+    ax1.set_xlim(left_limit, 40)
 
     # ax1.plot(solution.y[0, -1], solution.y[1, -1], marker='o', fillstyle='left', markersize=7, color='black')
     # vect_I = np.vectorize(I)
@@ -145,7 +145,7 @@ def visualize(solution, ts, color='black'):
     ax2.set_ylabel('V')
     ax2.grid()
 
-    X = np.arange(-80, 60, 5)
+    X = np.arange(left_limit, 60, 5)
     Y = np.arange(-0.2, 1, 0.05)
 
     V_grid, W_grid = np.meshgrid(X, Y)
@@ -206,10 +206,10 @@ def visualize_nullclines():
     ax1.set_ylim(-0.2, 1)
     ax1.set_xlim(-80, 40)
 
-def visualise_phase_lines(ts, color, y0_vector, interval=100, annotation=True):
+def visualise_phase_lines(ts, color, y0_vector, interval=100, annotation=True, left_limit=-80):
     # First trajectory (e.g., special handling or initial condition)
     solution = solve_ivp(f, [0, T], y0_vector[0], t_eval=ts)
-    fig, (ax1, ax2) = visualize(solution, ts, color=(0,0,0.4))
+    fig, (ax1, ax2) = visualize(solution, ts, color=(0,0,0.4), left_limit=left_limit)
 
     if annotation:
         arrow_annotate(solution, ax1, ts, interval, color=color)

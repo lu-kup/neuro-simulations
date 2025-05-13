@@ -1,3 +1,3 @@
 enabled = True
-model = "HT"
+model = "LT"
 neuron = "ML"
