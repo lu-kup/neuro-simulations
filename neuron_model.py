@@ -157,12 +157,17 @@ def visualize(solution, ts, color='black', left_limit=-80):
             dW_grid[i, j] = w_dot(V_grid[i, j], W_grid[i, j])
 
     norm = np.sqrt(dV_grid**2 + dW_grid**2)
-    dV_norm = dV_grid / norm
-    dW_norm = dW_grid / norm
+    angles = np.arctan2(dW_grid, dV_grid)
 
-    q = ax1.quiver(X, Y, dV_norm, dW_norm, color='purple')
+    #dV_norm = dV_grid / norm
+    #dW_norm = dW_grid / norm
 
-    #plt.show()
+    norm = np.tanh(norm / 100)
+    dV_grid = norm * np.cos(angles)
+    dW_grid = norm * np.sin(angles)
+
+    ax1.quiver(X, Y, dV_grid, dW_grid, color='purple', angles='xy')
+
     return fig, (ax1, ax2)
 
 def arrow_annotate(solution, ax1, ts, interval, color='black'):
@@ -232,7 +237,8 @@ def visualise_phase_lines(ts, color, y0_vector, interval=100, annotation=True, l
 
 if __name__ == '__main__':
     ts = np.linspace(0, T, 10**5)
-    visualise_phase_lines(ts, 'black', [[-50, 0],[-45, 0],[-30,0],[-20,0]])
+    visualise_phase_lines(ts, 'black', [[-50, 0]])
+    plt.show()
 
 
 """ 
