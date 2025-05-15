@@ -121,7 +121,7 @@ def calculate_V_nullcline():
 #-----------------------------------------------
 # MAIN CODE
 
-def visualize(solution, ts, color='black', left_limit=-80):
+def visualize(solution, ts, color='black', left_limit=-80, right_limit=40, up_limit=1, down_limit=-0.2):
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
 
     w_nullcline = calculate_w_nullcline()
@@ -134,8 +134,8 @@ def visualize(solution, ts, color='black', left_limit=-80):
     ax1.set_xlabel('V')
     ax1.set_ylabel('w')
 
-    ax1.set_ylim(-0.2, 1)
-    ax1.set_xlim(left_limit, 40)
+    ax1.set_ylim(down_limit, up_limit)
+    ax1.set_xlim(left_limit, right_limit)
 
     # ax1.plot(solution.y[0, -1], solution.y[1, -1], marker='o', fillstyle='left', markersize=7, color='black')
     # vect_I = np.vectorize(I)
@@ -169,6 +169,86 @@ def visualize(solution, ts, color='black', left_limit=-80):
     ax1.quiver(X, Y, dV_grid, dW_grid, color='purple', angles='xy')
 
     return fig, (ax1, ax2)
+
+def visualize_triple(solution, ts, color='black', left_limit=-80, right_limit=40, up_limit=1, down_limit=-0.2):
+    fig = plt.figure(figsize=(12, 7))
+    gs = fig.add_gridspec(2, 2, height_ratios=[2.5, 1])  # First row 1x2, second row spans full width
+    ax1 = fig.add_subplot(gs[0, 0])  # First subplot (top left)
+    ax2 = fig.add_subplot(gs[0, 1])  # Second subplot (top right)
+    ax3 = fig.add_subplot(gs[1, :]) 
+
+    w_nullcline = calculate_w_nullcline()
+    ax1.plot(w_nullcline[0], w_nullcline[1], marker=',', markersize=0.02, color='lightgrey')
+
+    V_nullcline = calculate_V_nullcline()
+    ax1.plot(V_nullcline[0], V_nullcline[1], marker=',', markersize=0.02, color='lightgrey')
+
+    ax1.plot(solution.y[0], solution.y[1], marker=',', markersize=0.1, color=color)
+    ax1.set_xlabel('V')
+    ax1.set_ylabel('w')
+
+    ax1.set_ylim(down_limit, up_limit)
+    ax1.set_xlim(left_limit, right_limit)
+
+    ax2.plot(solution.t, solution.y[0], marker=',', markersize=0.3, color='black')
+    ax2.set_xlabel('t')
+    ax2.set_ylabel('V')
+    ax2.grid()
+
+    X = np.arange(left_limit, 60, 5)
+    Y = np.arange(-0.2, 1, 0.05)
+
+    V_grid, W_grid = np.meshgrid(X, Y)
+    dV_grid, dW_grid = np.meshgrid(X, Y)
+
+    for i in range(V_grid.shape[0]):
+        for j in range(V_grid.shape[1]):
+            dV_grid[i, j] = V_dot(V_grid[i, j], W_grid[i, j], ts[0])
+            dW_grid[i, j] = w_dot(V_grid[i, j], W_grid[i, j])
+
+    norm = np.sqrt(dV_grid**2 + dW_grid**2)
+    angles = np.arctan2(dW_grid, dV_grid)
+
+    #dV_norm = dV_grid / norm
+    #dW_norm = dW_grid / norm
+
+    norm = np.tanh(norm / 100)
+    dV_grid = norm * np.cos(angles)
+    dW_grid = norm * np.sin(angles)
+
+    ax1.quiver(X, Y, dV_grid, dW_grid, color='purple', angles='xy')
+
+
+    Is = []
+    for t_curr in ts:
+        Is.append(I(t_curr))
+    ax3.plot(ts, Is, marker=',', markersize=0.3, color='black')
+    ax3.set_xlabel('t')
+    ax3.set_ylabel('I(t)')
+    ax3.grid()
+
+    return fig, (ax1, ax2, ax3)
+
+def visualize_double(solution, ts, color='black', left_limit=-80, right_limit=40, up_limit=1, down_limit=-0.2):
+    fig = plt.figure(figsize=(6, 7))
+    gs = fig.add_gridspec(2, 1, height_ratios=[2.5, 1])  # First row 1x2, second row spans full width
+    ax2 = fig.add_subplot(gs[0, 0])  # Second subplot (top right)
+    ax3 = fig.add_subplot(gs[1, :]) 
+
+    ax2.plot(solution.t, solution.y[0], marker=',', markersize=0.3, color='black')
+    ax2.set_xlabel('t')
+    ax2.set_ylabel('V')
+    ax2.grid()
+
+    Is = []
+    for t_curr in ts:
+        Is.append(I(t_curr))
+    ax3.plot(ts, Is, marker=',', markersize=0.3, color='black')
+    ax3.set_xlabel('t')
+    ax3.set_ylabel('I(t)')
+    ax3.grid()
+
+    return fig, (ax2, ax3)
 
 def arrow_annotate(solution, ax1, ts, interval, color='black'):
     x = solution.y[0]
@@ -211,10 +291,10 @@ def visualize_nullclines():
     ax1.set_ylim(-0.2, 1)
     ax1.set_xlim(-80, 40)
 
-def visualise_phase_lines(ts, color, y0_vector, interval=100, annotation=True, left_limit=-80):
+def visualise_phase_lines(ts, color, y0_vector, interval=100, annotation=True, left_limit=-80, right_limit=40, up_limit=1, down_limit=-0.2):
     # First trajectory (e.g., special handling or initial condition)
     solution = solve_ivp(f, [0, T], y0_vector[0], t_eval=ts)
-    fig, (ax1, ax2) = visualize(solution, ts, color=(0,0,0.4), left_limit=left_limit)
+    fig, (ax1, ax2) = visualize(solution, ts, color=(0,0,0.4), left_limit=left_limit, right_limit=right_limit, up_limit=up_limit, down_limit=down_limit)
 
     if annotation:
         arrow_annotate(solution, ax1, ts, interval, color=color)
@@ -230,10 +310,40 @@ def visualise_phase_lines(ts, color, y0_vector, interval=100, annotation=True, l
             linewidth=1
         )
         if annotation:
-            arrow_annotate(solution, ax1, ts, 100, color=color)
+            arrow_annotate(solution, ax1, ts, interval=interval, color=color)
 
     #plt.show()
     return ax1, ax2
+
+def visualise_phase_lines_triple(ts, color, y0_vector, interval=100, annotation=True, left_limit=-80, right_limit=40, up_limit=1, down_limit=-0.2):
+    # First trajectory (e.g., special handling or initial condition)
+    solution = solve_ivp(f, [0, T], y0_vector[0], t_eval=ts)
+    fig, (ax1, ax2, ax3) = visualize_triple(solution, ts, color=(0,0,0.4), left_limit=left_limit, right_limit=right_limit, up_limit=up_limit, down_limit=down_limit)
+
+    if annotation:
+        arrow_annotate(solution, ax1, ts, interval, color=color)
+
+    # Remaining trajectories
+    for y0 in y0_vector[1:]:
+        solution = solve_ivp(f, [0, T], y0, t_eval=ts)
+        ax1.plot(
+            solution.y[0],
+            solution.y[1],
+            marker='',              # no marker
+            color=color,
+            linewidth=1
+        )
+        if annotation:
+            arrow_annotate(solution, ax1, ts, interval=interval, color=color)
+
+    #plt.show()
+    return ax1, ax2, ax3
+
+def visualise_phase_lines_double(ts, color, y0_vector, interval=100, annotation=True, left_limit=-80, right_limit=40, up_limit=1, down_limit=-0.2):
+    solution = solve_ivp(f, [0, T], y0_vector[0], t_eval=ts)
+    fig, (ax2, ax3) = visualize_double(solution, ts, color=(0,0,0.4), left_limit=left_limit, right_limit=right_limit, up_limit=up_limit, down_limit=down_limit)
+
+    return ax2, ax3
 
 if __name__ == '__main__':
     ts = np.linspace(0, T, 10**5)
