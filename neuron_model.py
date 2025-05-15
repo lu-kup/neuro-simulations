@@ -341,6 +341,7 @@ def visualise_phase_lines_triple(ts, color, y0_vector, interval=100, annotation=
 
 def visualise_phase_lines_double(ts, color, y0_vector, interval=100, annotation=True, left_limit=-80, right_limit=40, up_limit=1, down_limit=-0.2):
     solution = solve_ivp(f, [0, T], y0_vector[0], t_eval=ts)
+    print("Max V =", solution.y[0].max())
     fig, (ax2, ax3) = visualize_double(solution, ts, color=(0,0,0.4), left_limit=left_limit, right_limit=right_limit, up_limit=up_limit, down_limit=down_limit)
 
     return ax2, ax3
